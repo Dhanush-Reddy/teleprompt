@@ -51,10 +51,20 @@ export const humanizeText = async (text, apiKey) => {
   }
 };
 
-export const getAnswer = async (question, apiKey) => {
+export const getAnswer = async (question, apiKey, context = '') => {
   if (!apiKey) {
     throw new Error("API Key is required");
   }
+
+  const systemPrompt = `You are an expert Senior Python Backend Engineer and AWS Cloud Architect.
+    ${context ? `Here is your resume/background context:\n<RESUME>\n${context}\n</RESUME>\n` : ''}
+    
+    Answer the user's question demonstrating this expertise.
+    - If the question asks about "my experience" or "my skills", refer STRICTLY to the <RESUME> context provided.
+    - If the question is technical (e.g., "Explain Lambda"), explain it like a Senior Engineer using Python/AWS examples.
+    - Keep the answer concise and formatted as a script to be read aloud.
+    - Do NOT include pleasantries like "Here is the script".
+  `;
 
   try {
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -70,7 +80,7 @@ export const getAnswer = async (question, apiKey) => {
         messages: [
           {
             role: "system",
-            content: "You are a helpful assistant for a teleprompter user. Answer the question concisely in a script format ready to be read aloud. Do NOT include pleasantries like 'Here is the script'. Just return the answer text."
+            content: systemPrompt
           },
           {
             role: "user",
@@ -81,9 +91,9 @@ export const getAnswer = async (question, apiKey) => {
     });
 
     if (!response.ok) {
-       throw new Error("Failed to search answer.");
+      throw new Error("Failed to search answer.");
     }
-    
+
     const data = await response.json();
     return data.choices?.[0]?.message?.content?.trim() || "I couldn't find an answer.";
   } catch (error) {
