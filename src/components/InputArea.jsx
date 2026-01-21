@@ -136,6 +136,43 @@ const InputArea = ({ onStart }) => {
             </header>
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                <div className="flex justify-end gap-2 mb-2">
+                    {/* Upload Resume Button */}
+                    <label
+                        className="p-2 bg-slate-700/50 hover:bg-slate-600 rounded-lg text-xs font-medium text-emerald-400 border border-emerald-500/30 backdrop-blur-sm transition-all flex items-center gap-1 cursor-pointer"
+                        title="Upload Resume (PDF)"
+                    >
+                        <input
+                            type="file"
+                            accept="application/pdf"
+                            className="hidden"
+                            onChange={handleFileUpload}
+                        />
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>
+                    </label>
+
+                    {/* Mic Button */}
+                    <button
+                        type="button"
+                        onClick={handleVoiceAsk}
+                        className="p-2 bg-slate-700/50 hover:bg-slate-600 rounded-lg text-xs font-medium text-emerald-400 border border-emerald-500/30 backdrop-blur-sm transition-all flex items-center gap-1 group"
+                        title="Ask AI via Voice"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" /><path d="M19 10v2a7 7 0 0 1-14 0v-2" /><line x1="12" y1="19" x2="12" y2="23" /><line x1="8" y1="23" x2="16" y2="23" /></svg>
+                    </button>
+
+                    {/* AI Humanizer Toggle */}
+                    <button
+                        type="button"
+                        onClick={() => setShowAi(!showAi)}
+                        className="p-2 bg-slate-700/50 hover:bg-slate-600 rounded-lg text-xs font-medium text-emerald-400 border border-emerald-500/30 backdrop-blur-sm transition-all flex items-center gap-1"
+                        title="AI Humanizer"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a10 10 0 1 0 10 10H12V2z" /><path d="M12 12 2.1 12.1" /><path d="m12 12 4.5-5" /></svg>
+                        Humanizer
+                    </button>
+                </div>
+
                 <div className="relative group">
                     <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-cyan-500 rounded-xl opacity-20 group-hover:opacity-40 transition duration-500 blur"></div>
                     <textarea
@@ -147,44 +184,6 @@ const InputArea = ({ onStart }) => {
                         value={text}
                         onChange={(e) => setText(e.target.value)}
                     />
-
-                    {/* Controls Overlay */}
-                    <div className="absolute top-4 right-4 flex gap-2">
-                        {/* Upload Resume Button */}
-                        <label
-                            className="p-2 bg-slate-700/50 hover:bg-slate-600 rounded-lg text-xs font-medium text-emerald-400 border border-emerald-500/30 backdrop-blur-sm transition-all flex items-center gap-1 cursor-pointer"
-                            title="Upload Resume (PDF)"
-                        >
-                            <input
-                                type="file"
-                                accept="application/pdf"
-                                className="hidden"
-                                onChange={handleFileUpload}
-                            />
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>
-                        </label>
-
-                        {/* Mic Button */}
-                        <button
-                            type="button"
-                            onClick={handleVoiceAsk}
-                            className="p-2 bg-slate-700/50 hover:bg-slate-600 rounded-lg text-xs font-medium text-emerald-400 border border-emerald-500/30 backdrop-blur-sm transition-all flex items-center gap-1 group"
-                            title="Ask AI via Voice"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" /><path d="M19 10v2a7 7 0 0 1-14 0v-2" /><line x1="12" y1="19" x2="12" y2="23" /><line x1="8" y1="23" x2="16" y2="23" /></svg>
-                        </button>
-
-                        {/* AI Humanizer Toggle */}
-                        <button
-                            type="button"
-                            onClick={() => setShowAi(!showAi)}
-                            className="p-2 bg-slate-700/50 hover:bg-slate-600 rounded-lg text-xs font-medium text-emerald-400 border border-emerald-500/30 backdrop-blur-sm transition-all flex items-center gap-1"
-                            title="AI Humanizer"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a10 10 0 1 0 10 10H12V2z" /><path d="M12 12 2.1 12.1" /><path d="m12 12 4.5-5" /></svg>
-                            Humanizer
-                        </button>
-                    </div>
                 </div>
 
                 {/* AI Panel */}
