@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
-import { humanizeText } from '../services/ai';
+import { humanizeText, getAnswer } from '../services/ai';
+import { listen } from '../services/speech';
+import VoiceIndicator from './VoiceIndicator';
 
 const InputArea = ({ onStart }) => {
     const [text, setText] = useState('');
     const [apiKey, setApiKey] = useState('');
     const [isAiLoading, setIsAiLoading] = useState(false);
     const [showAi, setShowAi] = useState(false);
+    const [isListening, setIsListening] = useState(false);
+    const [isProcessingVoice, setIsProcessingVoice] = useState(false);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -35,7 +39,7 @@ const InputArea = ({ onStart }) => {
         try {
             const humanized = await humanizeText(text, key);
             setText(humanized);
-            setShowAi(false); // Close panel on success
+            setShowAi(false); 
         } catch (error) {
             alert(error.message);
         } finally {
@@ -43,8 +47,34 @@ const InputArea = ({ onStart }) => {
         }
     };
 
+    const handleVoiceAsk = async () => {
+        const key = import.meta.env.VITE_OPENROUTER_API_KEY || apiKey;
+        if (!key.trim()) {
+            alert("OpenRouter API Key required in .env for Voice Q&A.");
+            return;
+        }
+
+        setIsListening(true);
+        try {
+            const transcript = await listen();
+            setIsListening(false);
+            setIsProcessingVoice(true);
+            
+            const answer = await getAnswer(transcript, key);
+            setText(answer);
+        } catch (error) {
+            console.error(error);
+            alert("Voice Error: " + error.message);
+            setIsListening(false);
+        } finally {
+            setIsProcessingVoice(false);
+        }
+    };
+
     return (
         <div className="w-full max-w-2xl animate-fade-in relative z-10">
+            <VoiceIndicator isListening={isListening || isProcessingVoice} />
+            
             <header className="mb-8 text-center">
                 <h1 className="text-4xl font-bold bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent mb-2">
                     Live Teleprompter
@@ -57,21 +87,34 @@ const InputArea = ({ onStart }) => {
                     <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-cyan-500 rounded-xl opacity-20 group-hover:opacity-40 transition duration-500 blur"></div>
                     <textarea
                         className="relative w-full h-64 bg-slate-800 text-slate-100 p-6 rounded-xl border border-slate-700 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 resize-none text-lg leading-relaxed shadow-xl"
-                        placeholder="Paste your script here..."
+                        placeholder="Paste your script here... or use the Mic to ask the AI to write one."
                         value={text}
                         onChange={(e) => setText(e.target.value)}
                     />
 
-                    {/* Floating Toggle for AI */}
-                    <button
-                        type="button"
-                        onClick={() => setShowAi(!showAi)}
-                        className="absolute top-4 right-4 p-2 bg-slate-700/50 hover:bg-slate-600 rounded-lg text-xs font-medium text-emerald-400 border border-emerald-500/30 backdrop-blur-sm transition-all flex items-center gap-1"
-                        title="AI Humanizer"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a10 10 0 1 0 10 10H12V2z" /><path d="M12 12 2.1 12.1" /><path d="m12 12 4.5-5" /></svg>
-                        AI Humanizer
-                    </button>
+                    {/* Controls Overlay */}
+                    <div className="absolute top-4 right-4 flex gap-2">
+                        {/* Mic Button */}
+                        <button
+                            type="button"
+                            onClick={handleVoiceAsk}
+                            className="p-2 bg-slate-700/50 hover:bg-slate-600 rounded-lg text-xs font-medium text-emerald-400 border border-emerald-500/30 backdrop-blur-sm transition-all flex items-center gap-1 group"
+                            title="Ask AI via Voice"
+                        >
+                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+                        </button>
+                    
+                        {/* AI Humanizer Toggle */}
+                        <button
+                            type="button"
+                            onClick={() => setShowAi(!showAi)}
+                            className="p-2 bg-slate-700/50 hover:bg-slate-600 rounded-lg text-xs font-medium text-emerald-400 border border-emerald-500/30 backdrop-blur-sm transition-all flex items-center gap-1"
+                            title="AI Humanizer"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a10 10 0 1 0 10 10H12V2z" /><path d="M12 12 2.1 12.1" /><path d="m12 12 4.5-5" /></svg>
+                            Humanizer
+                        </button>
+                    </div>
                 </div>
 
                 {/* AI Panel */}
@@ -126,7 +169,7 @@ const InputArea = ({ onStart }) => {
                     >
                         Use Demo Script
                     </button>
-
+                    
                     <button
                         type="submit"
                         disabled={!text.trim()}

@@ -50,3 +50,44 @@ export const humanizeText = async (text, apiKey) => {
     throw new Error(error.message || "Failed to humanize text.");
   }
 };
+
+export const getAnswer = async (question, apiKey) => {
+  if (!apiKey) {
+    throw new Error("API Key is required");
+  }
+
+  try {
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+        "HTTP-Referer": window.location.origin,
+        "X-Title": "Teleprompter App"
+      },
+      body: JSON.stringify({
+        model: "google/gemini-2.0-flash-001",
+        messages: [
+          {
+            role: "system",
+            content: "You are a helpful assistant for a teleprompter user. Answer the question concisely in a script format ready to be read aloud. Do NOT include pleasantries like 'Here is the script'. Just return the answer text."
+          },
+          {
+            role: "user",
+            content: question
+          }
+        ]
+      })
+    });
+
+    if (!response.ok) {
+       throw new Error("Failed to search answer.");
+    }
+    
+    const data = await response.json();
+    return data.choices?.[0]?.message?.content?.trim() || "I couldn't find an answer.";
+  } catch (error) {
+    console.error("AI Error:", error);
+    throw new Error(error.message || "Failed to get answer.");
+  }
+};
