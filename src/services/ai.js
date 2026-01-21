@@ -22,12 +22,12 @@ export const humanizeText = async (text, apiKey) => {
           },
           {
             role: "user",
-            content: `Rewrite the following text to make it sound like an imperfect human speech or live transcription. 
-            Add realistic "human" elements such as:
-            - Occasional stuttering (repeating the first letter of a word, e.g., "th-this").
-            - Filler words like "um", "uh", "ah", "you know".
-            - Minor grammar slips or self-corrections (e.g., "I went to... uh, I mean, I drove to").
-            - Keep the core meaning intact, but make the rhythm less robotic.
+            content: `Rewrite the following text to sound like a natural, unscripted human speech.
+            - Add *occasional* filler words (um, uh) but do NOT overdo it.
+            - Include *very few* mild stutters or repetitions for realism.
+            - The goal is to make it feel "live", not "broken" or "drunk".
+            - Keep the text readable, coherent, and flow naturally.
+            - Do NOT add irrelevant tangents.
             
             Return ONLY the rewritten text. Do not include any explanations or quotes around the result.
             
